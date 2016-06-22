@@ -20,6 +20,8 @@ var Qt = function() {
     }
 };
 
+Qt.iterations = 0;
+
 Qt.Popup = function(content, closebutton) {
     var that = this;
 
@@ -141,11 +143,20 @@ Qt.EnumeratorOnlinePage = {
         return $('.online_prof a.female').length;
     },
     enumerate : function(callback) {
-        $('.online_prof a.female').each(function() {
-            if($(this).attr('href').indexOf('country') === -1) {
-                callback( $(this).attr('href').replace('/',''), $(this) );
+      var timeOut = 1250;
+      var iterations = 0;
+      $('.online_prof a.female').each(function() {
+          var elem = this;
+          setTimeout(function() {
+            if($(elem).attr('href').indexOf('country') === -1) {
+                callback( $(elem).attr('href').replace('/',''), $(elem) );
             }
-        });
+          }, timeOut);
+          timeOut = timeOut+1250;
+          iterations ++;
+      });
+
+      Qt.iterations = iterations;
     }
 };
 
@@ -161,8 +172,9 @@ Qt.EnumeratorSearchPage = {
 };
 
 Qt.MaybeHeadToNextPage = function() {
+  return false;
     var href = $('.cur_page').next().attr('href');
-    
+
     if (href) {
         var url = 'https://www.interpals.net' + href + '#qtcontinue'
         window.location.href = url;
@@ -209,9 +221,9 @@ Qt.OnlineVisitor = function() {
         var currentCounter = 0;
 
         that.popup.show();
-        
+
         qtEnumerator.enumerate(function(userName, element) {
-        
+
             if(typeof visitedQts[userName] !== typeof undefined) {
                 return;
             }
@@ -228,7 +240,7 @@ Qt.OnlineVisitor = function() {
                 $('#qtpopupcontent').html("<div style='width: "+percentDone+"%; background: #000; text-align: center; color: red'>&nbsp;</div>");
 
                 // finished
-                if(doneVisited === currentCounter) {
+                if(doneVisited === currentCounter && currentCounter) {
                     Qt.Registry.set(visitedQts);
 
                     var popupText = 'Finished visiting Qts ('+doneVisited+')';
@@ -240,7 +252,7 @@ Qt.OnlineVisitor = function() {
                         popupText += '<a href="#" id="clearqtlist">Clear visited QT List</a> ';
                         popupText += '(click requires no further confirmation)';
                     }
-                    
+
                     // If on search page
                     Qt.MaybeHeadToNextPage();
 
@@ -249,7 +261,7 @@ Qt.OnlineVisitor = function() {
                 }
             });
         });
-        
+
         // all were already visited, head to next search page
         if (currentCounter == 0) {
             Qt.MaybeHeadToNextPage();
@@ -404,7 +416,7 @@ Qt.Interface = function() {
 
         // Add box to headmenu
         $('form[name="onlineForm"]').append(fLinkAuto);
-        
+
         // Add to search box on search page
         $('form[name="sCForm"]').append(fLinkAuto);
     };
