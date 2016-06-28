@@ -6,6 +6,8 @@ Script to automatically visit female profiles on interpals
 UPDATED Version in throttle branch, doesn't block you anymore. But you get logged out after a while instead. It's progressing. 
 https://github.com/DccrsD/QtCrawler/blob/throttle/qtcrawler.user.js
 
+Pls join the sperg squad and >DEPLOY your code to qcrawler: https://discord.gg/scjKhFK
+
 ## Release information
 
 Beta version for testing. Currently only tested in Chrome. 
