@@ -20,8 +20,6 @@ var Qt = function() {
     }
 };
 
-Qt.iterations = 0;
-
 Qt.Popup = function(content, closebutton) {
     var that = this;
 
@@ -143,20 +141,11 @@ Qt.EnumeratorOnlinePage = {
         return $('.online_prof a.female').length;
     },
     enumerate : function(callback) {
-      var timeOut = 1250;
-      var iterations = 0;
-      $('.online_prof a.female').each(function() {
-          var elem = this;
-          setTimeout(function() {
-            if($(elem).attr('href').indexOf('country') === -1) {
-                callback( $(elem).attr('href').replace('/',''), $(elem) );
+        $('.online_prof a.female').each(function() {
+            if($(this).attr('href').indexOf('country') === -1) {
+                callback( $(this).attr('href').replace('/',''), $(this) );
             }
-          }, timeOut);
-          timeOut = timeOut+1250;
-          iterations ++;
-      });
-
-      Qt.iterations = iterations;
+        });
     }
 };
 
@@ -222,6 +211,7 @@ Qt.OnlineVisitor = function() {
 
         that.popup.show();
 
+        var wait = 1000;
         qtEnumerator.enumerate(function(userName, element) {
 
             if(typeof visitedQts[userName] !== typeof undefined) {
@@ -229,37 +219,52 @@ Qt.OnlineVisitor = function() {
             }
 
             currentCounter++;
+            setTimeout(function() {
+              $.ajax({
+                type: "GET",
+                async: true,
+                url: '//www.interpals.net/'+userName,
+                success: function(response) {
 
-            $.get('//www.interpals.net/'+userName).done(function() {
-                visitedQts[userName] = true;
-                doneVisited ++;
-                element.parent().parent().parent().css({'background-color': '#000'});
+                var links = $(response).find('a');
+                console.log(links);
+                var randomNum = Math.floor(Math.random()*links.length)  
+                var url = links.eq(randomNum).attr('href');
+                console.log("calling: "+url);
+                $.get(url);
+                 
+                  visitedQts[userName] = true;
+                  doneVisited ++;
+                  element.parent().parent().parent().css({'background-color': '#000'});
 
-                var percentDone = doneVisited / currentCounter * 100;
-                $('#qtpopupinfo').html('visiting: '+doneVisited+' of '+currentCounter);
-                $('#qtpopupcontent').html("<div style='width: "+percentDone+"%; background: #000; text-align: center; color: red'>&nbsp;</div>");
+                  var percentDone = doneVisited / currentCounter * 100;
+                  $('#qtpopupinfo').html('visiting: '+doneVisited+' of '+currentCounter);
+                  $('#qtpopupcontent').html("<div style='width: "+percentDone+"%; background: #000; text-align: center; color: red'>&nbsp;</div>");
 
-                // finished
-                if(doneVisited === currentCounter && currentCounter) {
-                    Qt.Registry.set(visitedQts);
+                  // finished
+                  if(doneVisited === currentCounter) {
+                      Qt.Registry.set(visitedQts);
 
-                    var popupText = 'Finished visiting Qts ('+doneVisited+')';
+                      var popupText = 'Finished visiting Qts ('+doneVisited+')';
 
-                    if(unfilteredTotal - doneVisited !== 0) {
-                        popupText += '<br />';
-                        popupText += 'A total of '+(unfilteredTotal - currentCounter)+' QTs have been skipped ';
-                        popupText += 'because you already visited them before. <br />';
-                        popupText += '<a href="#" id="clearqtlist">Clear visited QT List</a> ';
-                        popupText += '(click requires no further confirmation)';
-                    }
+                      if(unfilteredTotal - doneVisited !== 0) {
+                          popupText += '<br />';
+                          popupText += 'A total of '+(unfilteredTotal - currentCounter)+' QTs have been skipped ';
+                          popupText += 'because you already visited them before. <br />';
+                          popupText += '<a href="#" id="clearqtlist">Clear visited QT List</a> ';
+                          popupText += '(click requires no further confirmation)';
+                      }
 
-                    // If on search page
-                    Qt.MaybeHeadToNextPage();
+                      // If on search page
+                      Qt.MaybeHeadToNextPage();
 
-                    $('#qtpopupinfo').html(popupText);
-                    that.refreshListener();
+                      $('#qtpopupinfo').html(popupText);
+                      that.refreshListener();
+                  }
                 }
-            });
+              });
+            }, wait);
+            wait = wait + 1000;
         });
 
         // all were already visited, head to next search page
