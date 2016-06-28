@@ -1,11 +1,9 @@
 # QtCrawler
 Script to automatically visit female profiles on interpals
 
-# Breaking news: 21 - June - 2016
-Interpals starts throttline the amount of possible views. Inside the throttle branch you can find a first implementation of a throttle, which represents a try to avoid the block. Although, this doesn't seem to work. 
+# Breaking news: 28 - June - 2016
 
-If anyone is interested in working with me on solving the issue, join #qtcrawler on Freenode.
-Throttle implementation for online page only (deactivated jumper to next page, breaks UI):
+UPDATED Version in throttle branch, doesn't block you anymore. But you get logged out after a while instead. It's progressing. 
 https://github.com/DccrsD/QtCrawler/blob/throttle/qtcrawler.user.js
 
 ## Release information
